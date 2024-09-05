@@ -60,6 +60,10 @@ Within the popup, you can use the following key mappings:
 
 moiday.nvim automatically tracks files you open and adds them to the recent files list. It also shows the recent files popup when you open Neovim, depending on your configuration.
 
+## Screenshots
+<img width="1608" alt="image" src="https://github.com/user-attachments/assets/da5b331f-1a65-4cab-bcf7-0c749fab3d39">
+<img width="1608" alt="image" src="https://github.com/user-attachments/assets/796ccdb0-7cec-43e9-b03d-ffb10f4ce2bb">
+
 ## Contributing
 
 Feel free to open issues or submit pull requests if you have any suggestions or improvements.
