@@ -38,8 +38,10 @@ local function currentList()
   end
 
   local lines = {}
-  for line in file:lines() do
-    table.insert(lines, line)
+  for filepath in file:lines() do
+    if (vim.fn.filereadable(filepath) == 1) then
+      table.insert(lines, filepath)
+    end
   end
 
   file:close()
@@ -145,22 +147,22 @@ local function buildHelpPanel()
   return buf, win
 end
 
+local function fileProtocal(filepath)
+  local protocalLength = string.find(filepath, '://') or 0
+  return string.sub(filepath, 1, protocalLength - 1)
+end
+
 local function ignoreFile(filepath)
-  local filename = vim.fn.fnamemodify(filepath, ':t')
-  for _, ignore in ipairs(config.options.ignoreFiles) do
-    if filename == ignore then
-      return true
-    end
-  end
+  local fileName = vim.fn.fnamemodify(filepath, ':t')
+  local fileExt = vim.fn.fnamemodify(filepath, ':e')
+  local fileType = vim.bo.filetype
+  local ignoreByFilename = config.include(config.options.ignoreFiles, fileName)
+  local ignoreByExtension = config.include(config.options.ignoreExtensions, fileExt)
+  local ignoreByProtocal = config.include(config.options.ignoreProtocals, fileProtocal(filepath))
+  local ignoreByType = config.include(config.options.ignoreFileTypes, vim.bo.filetype)
+  local nonType = fileType.isnil or fileType == ''
 
-  fileext = vim.fn.fnamemodify(filepath, ':e')
-  for _, ignore in ipairs(config.options.ignoreExtensions) do
-    if fileext == ignore then
-      return true
-    end
-  end
-
-  return false
+  return ignoreByFilename or ignoreByExtension or ignoreByProtocal or ignoreByType or nonType
 end
 
 local function setupPopupKeymaps(buf, win, list)
@@ -228,7 +230,10 @@ end
 
 function U.addRecentFile(filepath)
   local list = currentList() or {}
-  if ignoreFile(filepath) then
+
+  local isIgnored = ignoreFile(filepath)
+
+  if isIgnored then
     return
   end
   removeByValue(list, filepath)
